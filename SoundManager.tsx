@@ -1,0 +1,127 @@
+// SoundManager.ts
+import { Audio } from 'expo-av';
+
+type TrackEndCallback = () => void;
+
+interface PlaybackStatus {
+  isLoaded: boolean;
+  didJustFinish?: boolean;
+  positionMillis?: number;
+  durationMillis?: number;
+}
+
+class SoundManager {
+  private sounds: { [key: string]: Audio.Sound } = {};
+  public isMuted: boolean = false;
+  private trackEndCallbacks: TrackEndCallback[] = [];
+
+  async loadSound(key: string, soundFile: any): Promise<void> {
+    if (this.sounds[key]) {
+      await this.unloadSound(key);
+    }
+    console.log(`Loading Sound: ${key}`);
+    const { sound } = await Audio.Sound.createAsync(soundFile, { isLooping: false });
+    await sound.setIsLoopingAsync(false);  // Explicitly set looping to false
+    sound.setOnPlaybackStatusUpdate((status) => this.handlePlaybackStatusUpdate(status as PlaybackStatus, key));
+    this.sounds[key] = sound;
+  }
+
+  async playSound(key: string, loop: boolean = false): Promise<void> {
+    if (!this.sounds[key]) {
+      console.log(`Sound not loaded: ${key}`);
+      return;
+    }
+    console.log(`Playing Sound: ${key}`);
+    await this.sounds[key].setIsLoopingAsync(loop);
+    await this.sounds[key].playAsync();
+  }
+
+  async pauseSound(key: string): Promise<void> {
+    if (!this.sounds[key]) {
+      console.log(`Sound not loaded: ${key}`);
+      return;
+    }
+    console.log(`Pausing Sound: ${key}`);
+    await this.sounds[key].pauseAsync();
+  }
+
+  async stopSound(key: string): Promise<void> {
+    if (!this.sounds[key]) {
+      console.log(`Sound not loaded: ${key}`);
+      return;
+    }
+    console.log(`Stopping Sound: ${key}`);
+    await this.sounds[key].stopAsync();
+  }
+
+  async unloadSound(key: string): Promise<void> {
+    if (!this.sounds[key]) {
+      console.log(`No sound to unload: ${key}`);
+      return;
+    }
+    console.log(`Unloading Sound: ${key}`);
+    await this.sounds[key].unloadAsync();
+    delete this.sounds[key];
+  }
+
+  async unloadAllSounds(): Promise<void> {
+    for (const key in this.sounds) {
+      await this.unloadSound(key);
+    }
+  }
+
+  async muteSound(key: string): Promise<void> {
+    if (!this.sounds[key]) {
+      console.log(`Sound not loaded: ${key}`);
+      return;
+    }
+    console.log(`Muting Sound: ${key}`);
+    await this.sounds[key].setVolumeAsync(0);
+    this.isMuted = true;
+  }
+
+  async unmuteSound(key: string): Promise<void> {
+    if (!this.sounds[key]) {
+      console.log(`Sound not loaded: ${key}`);
+      return;
+    }
+    console.log(`Unmuting Sound: ${key}`);
+    await this.sounds[key].setVolumeAsync(1);
+    this.isMuted = false;
+  }
+
+  async setVolume(key: string, volume: number) {
+    if (volume >= 0 && volume <= 1) {
+      await this.sounds[key].setVolumeAsync(volume);
+    } else {
+      console.log('invalid volume setting');
+    }
+  }
+
+  onTrackEnd(callback: TrackEndCallback): void {
+    this.trackEndCallbacks.push(callback);
+  }
+
+  offTrackEnd(callback: TrackEndCallback): void {
+    this.trackEndCallbacks = this.trackEndCallbacks.filter(cb => cb !== callback);
+  }
+
+  private handlePlaybackStatusUpdate(status: PlaybackStatus, key: string): void {
+    //console.log(`Playback status update for ${key}:`, status);
+    if (status.isLoaded && status.didJustFinish) {
+      console.log(`Track ended: ${key}`);
+      this.trackEndCallbacks.forEach(callback => callback());
+    }
+  }
+
+  async checkTrackEnd(key: string): Promise<void> {
+    const status = await this.sounds[key].getStatusAsync() as PlaybackStatus;
+    if (status.isLoaded && status.positionMillis && status.durationMillis && 
+        status.positionMillis >= status.durationMillis) {
+      console.log(`Manual check: Track ended: ${key}`);
+      this.trackEndCallbacks.forEach(callback => callback());
+    }
+  }
+}
+
+export default new SoundManager();
