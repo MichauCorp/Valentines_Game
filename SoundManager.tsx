@@ -26,16 +26,39 @@ class SoundManager {
     this.sounds[key] = sound;
   }
 
-  async playSound(key: string, loop: boolean = false): Promise<void> {
+  async playSound(key: string, loop: boolean = false, onPlaybackStatusUpdate?: (status: PlaybackStatus) => void): Promise<void> {
     if (!this.sounds[key]) {
       console.log(`Sound not loaded: ${key}`);
       return;
     }
     console.log(`Playing Sound: ${key}`);
+    
+    // Reset the sound before playing
+    await this.resetSound(key);
+    
     await this.sounds[key].setIsLoopingAsync(loop);
+    
+    const combinedCallback = (status: PlaybackStatus) => {
+      this.handlePlaybackStatusUpdate(status, key);
+      if (onPlaybackStatusUpdate) {
+        onPlaybackStatusUpdate(status);
+      }
+      if (status.isLoaded && status.didJustFinish) {
+        this.resetSound(key);
+      }
+    };
+    
+    this.sounds[key].setOnPlaybackStatusUpdate(combinedCallback);
+    
     await this.sounds[key].playAsync();
   }
 
+  private async resetSound(key: string): Promise<void> {
+    if (this.sounds[key]) {
+      await this.sounds[key].stopAsync();
+      await this.sounds[key].setPositionAsync(0);
+    }
+  }
   async pauseSound(key: string): Promise<void> {
     if (!this.sounds[key]) {
       console.log(`Sound not loaded: ${key}`);

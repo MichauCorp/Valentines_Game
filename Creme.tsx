@@ -4,6 +4,7 @@ import { debounce, transform } from 'lodash';
 import SoundManager from '@/SoundManager';
 import CremeFinalPhase from '@/CremeFinalPhase';
 import CremeCutscene from '@/CremeCutscene';
+import { Sound } from 'expo-av/build/Audio';
 
 const { width, height } = Dimensions.get('window');
 const HEART_POSITION = { x: 0, y: -50 };
@@ -536,8 +537,10 @@ const Creme: React.FC = () => {
     const randomIndex = Math.floor(Math.random() * 58) + 1;
     const randomSfxIndex = Math.floor(Math.random() * 15) + 1;
 
-    SoundManager.setVolume(`endorsement-${randomSfxIndex}`, 0.5)
-    SoundManager.playSound(`endorsement-${randomSfxIndex}`)
+    SoundManager.setVolume(`endorsement-${randomSfxIndex}`, 0.5);
+    SoundManager.playSound(`endorsement-${randomSfxIndex}`, false);
+
+
 
     const newItem: ItemData = {
       id: getUniqueId(),
