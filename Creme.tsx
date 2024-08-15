@@ -21,6 +21,8 @@ interface FallingItemProps {
   type: 'heart' | 'picture' | 'kiss';
 }
 
+
+//falling item component 
 const FallingItem: React.FC<FallingItemProps> = ({ startPosition, imageSource, type }) => {
   const position = useRef(new Animated.ValueXY(startPosition)).current;
   const opacity = useRef(new Animated.Value(1)).current;
@@ -68,6 +70,7 @@ interface EnemyProps {
   onReach: () => void;
 }
 
+//enemy component (half assed)
 const Enemy: React.FC<EnemyProps> = ({ id, startPosition, source, onDestroy, onReach, }) => {
   const position = useRef(new Animated.ValueXY(startPosition)).current;
   const rotation = useRef(new Animated.Value(0)).current;
@@ -153,7 +156,7 @@ interface ItemData {
   imageSource: ImageSourcePropType;
   type: 'heart' | 'picture' | 'kiss';
 }
-
+//me and gf pictures
 const meAndCremeImages = {
 1: require('@/assets/images/me&creme/1.jpeg'),
 2: require('@/assets/images/me&creme/2.jpeg'),
@@ -215,6 +218,7 @@ const meAndCremeImages = {
 58: require('@/assets/images/me&creme/58.jpeg'),
 };
 
+//enemy sprites, change per level
 const enemySprites = [
   require('@/assets/images/enemies/fish.gif'),
   require('@/assets/images/enemies/crab.gif'),
@@ -226,6 +230,7 @@ const enemySprites = [
   require('@/assets/images/enemies/spaceship.gif'),
 ];
 
+//level backgrounds
 const backgrounds = [
   require('@/assets/images/backgrounds/1.gif'),
   require('@/assets/images/backgrounds/2.gif'),
@@ -238,6 +243,7 @@ const backgrounds = [
   //require('@/assets/images/backgrounds/myself.png'),
 ];
 
+//background music
 const bgm = [
   require('@/assets/sound/bgm/nightcallK.mp3'),
   require('@/assets/sound/bgm/harvestMoonK.mp3'),
@@ -247,6 +253,7 @@ const bgm = [
   require('@/assets/sound/bgm/afterDarkK.mp3'),
 ];
 
+//levelup sfx
 const levelUpSfx = [
   require('@/assets/sound/sfx/levelUp/waterEmerge.mp3'),
   require('@/assets/sound/sfx/levelUp/sandWalk.mp3'),
@@ -259,6 +266,7 @@ const levelUpSfx = [
   //require('@/assets/sound/sfx/levelUp/8.mp3'),
 ];
 
+//level ambience, corresponds to background
 const levelAmbienceSfx = [
   require('@/assets/sound/sfx/levelAmbience/underwaterAmbience.mp3'),
   require('@/assets/sound/sfx/levelAmbience/beachAmbience.mp3'),
@@ -270,6 +278,7 @@ const levelAmbienceSfx = [
   require('@/assets/sound/sfx/levelAmbience/spaceAmbience.mp3'),
 ];
 
+//sfx of things i say to my gf
 const endorsementSfx = [
   require('@/assets/sound/sfx/endorsements/1.mp3'),
   require('@/assets/sound/sfx/endorsements/2.mp3'),
@@ -288,6 +297,7 @@ const endorsementSfx = [
   require('@/assets/sound/sfx/endorsements/15.mp3'),
 ];
 
+//function to create random playlist of bgm
 const createRandomizedPlaylist = () => {
   const playlist = bgm.map((_, index) => index);
   for (let i = playlist.length - 1; i > 0; i--) {
@@ -300,7 +310,7 @@ const createRandomizedPlaylist = () => {
 
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//main app component Creme
 const Creme: React.FC = () => {
   // State declarations
   const [count, setCount] = useState<number>(0);
@@ -316,41 +326,82 @@ const Creme: React.FC = () => {
   const [showFirstCutscene, setShowFirstCutscene] = useState(false);
   const [showFinalPhase, setShowFinalPhase] = useState(false);
   const [isGameActive, setIsGameActive] = useState(false);
-
-
+  const [currentAmbienceIndex, setCurrentAmbienceIndex] = useState(0);
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Sound Section
+  ///////////////////////////////////////////////////////////////////////////
+
+  //loads all level centered sfx
+  const loadLevelSounds = async () => {
+    for (let i = 0; i < levelUpSfx.length; i++) {
+      await SoundManager.loadSound(`levelUp-${i}`, levelUpSfx[i]);
+    }
+    for (let i = 0; i < levelAmbienceSfx.length; i++) {
+      await SoundManager.loadSound(`ambience-${i}`, levelAmbienceSfx[i]);
+    }
+  };
+
+  //load bgm
+  const loadBgmSounds = async () => {
+    for (let i = 0; i < bgm.length; i++) {
+      await SoundManager.loadSound(`bgm-${i}`, bgm[i]);
+    }
+  };
+
+  //load thing i say sfx
+  const loadEndorsementSounds = async () => {
+    for (let i = 0; i < endorsementSfx.length; i++) {
+      await SoundManager.loadSound(`endorsement-${i}`, endorsementSfx[i]);
+    }
+  };
+
+  //load sounds for other components
+  const loadNextComponentsSounds = async () => {
+      await SoundManager.loadSound('heartbeat', require('@/assets/sound/sfx/heartbeat.mp3'));
+      await SoundManager.setVolume('heartbeat', 1);
+
+      await SoundManager.loadSound('hopes&dreams', require('@/assets/sound/bgm/hopes&dreams.mp3'));
+      await SoundManager.setVolume('hopes&dreams', 0.75);
+
+      await SoundManager.loadSound('nadavdav', require('@/assets/sound/sfx/nadavdav.mp4'));
+      await SoundManager.setVolume('nadavdav', 1);
+  }
+
+  //function to change ambience played per level
+  const playAmbience = async (index: number) => {
+    // Stop the current ambience sound
+    if (currentAmbienceIndex !== index) {
+      await SoundManager.stopSound(`ambience-${currentAmbienceIndex}`);
+    }
+    
+    setCurrentAmbienceIndex(index);
+    await SoundManager.setVolume(`ambience-${index}`, 0.1);
+    await SoundManager.playSound(`ambience-${index}`, true);
+  };
 
   // useEffect for initial setup
   useEffect(() => {
-    const loadAndPlaySounds = async () => {
+    const initializeGame = async () => {
       const newPlaylist = createRandomizedPlaylist();
       setPlaylist(newPlaylist);
       
-      for (let i = 0; i < bgm.length; i++) {
-        await SoundManager.loadSound(`bgm-${i}`, bgm[i]);
-      }
-      
-      setCurrentTrackIndex(0);
-
-      await loadLevelUpSfx();
-      await loadAmbienceSounds();
-      await SoundManager.loadSound('heartbeat', require('@/assets/sound/sfx/heartbeat.mp3'));
-      await SoundManager.setVolume('heartbeat', 1);
-      await SoundManager.loadSound('hopes&dreams', require('@/assets/sound/bgm/hopes&dreams.mp3'));
-      await SoundManager.setVolume('hopes&dreams', 0.75);
-      await SoundManager.loadSound('nadavdav', require('@/assets/sound/sfx/nadavdav.mp4'));
-      await SoundManager.setVolume('nadavdav', 1);
+      await loadLevelSounds();
+      await loadBgmSounds();
+      await loadEndorsementSounds();
+      await loadNextComponentsSounds();
 
       setIsGameActive(true);
       setIsLoading(false);
+      
       await SoundManager.setVolume(`bgm-${newPlaylist[0]}`, 0.1);
       await SoundManager.playSound(`bgm-${newPlaylist[0]}`, false);
-      await SoundManager.setVolume(`ambience-0`, 0.1);
-      await SoundManager.playSound(`ambience-0`, true);
+      
+      await playAmbience(0);
     };
-
-    loadEndorsementSounds();
-    loadAndPlaySounds();
+  
+    initializeGame();
     toggleMute();
     
     return () => {
@@ -380,38 +431,77 @@ const Creme: React.FC = () => {
     };
   }, [currentTrackIndex, playlist]);
 
-  // Helper functions
-  const loadLevelUpSfx = async () => {
-    for (const sfx of levelUpSfx) {
-      await SoundManager.loadSound(`levelUp-${levelUpSfx.indexOf(sfx)}`, sfx);
-    }
-  };
-
-  const loadAmbienceSounds = async () => {
-    for (let i = 0; i < levelAmbienceSfx.length; i++) {
-      await SoundManager.loadSound(`ambience-${i}`, levelAmbienceSfx[i]);
-    }
-  };
-
-  const loadEndorsementSounds = async () => {
-    for (let i = 0; i < endorsementSfx.length; i++) {
-      await SoundManager.loadSound(`endorsement-${i}`, endorsementSfx[i]);
-    }
-  };
-
   const toggleMute = () => {
-    if (isMuted) {
-      bgm.forEach((_, index) => SoundManager.unmuteSound(`bgm-${index}`));
-      levelUpSfx.forEach((_, index) => SoundManager.unmuteSound(`levelUp-${index}`));
-      levelAmbienceSfx.forEach((_, index) => SoundManager.unmuteSound(`ambience-${index}`));
-    } else {
-      bgm.forEach((_, index) => SoundManager.muteSound(`bgm-${index}`));
-      levelUpSfx.forEach((_, index) => SoundManager.muteSound(`levelUp-${index}`));
-      levelAmbienceSfx.forEach((_, index) => SoundManager.muteSound(`ambience-${index}`));
-    }
+    const sounds = [
+      ...bgm.map((_, index) => `bgm-${index}`),
+      ...levelUpSfx.map((_, index) => `levelUp-${index}`),
+      ...levelAmbienceSfx.map((_, index) => `ambience-${index}`),
+    ];
+  
+    sounds.forEach(sound => {
+      if (isMuted) {
+        SoundManager.unmuteSound(sound);
+      } else {
+        SoundManager.muteSound(sound);
+      }
+    });
+  
     setIsMuted(!isMuted);
   };
 
+  //useEffect for handling level changes, crucial its in a useEffect
+  useEffect(() => {
+    const handleLevelEffects = async () => {
+      if (levelIndex === FINAL_LEVEL) {
+        console.log('final level, starting cutscene');
+        await SoundManager.stopSound(`ambience-${currentAmbienceIndex}`);
+        bgm.forEach((_, index) => SoundManager.stopSound(`bgm-${index}`));
+        setIsGameActive(false);
+        setShowFirstCutscene(true);
+      } else {
+        // Level up sound
+        if (levelIndex == 1)
+        {
+          await SoundManager.setVolume(`levelUp-0`, 0.1);
+          await SoundManager.playSound(`levelUp-0`);
+        }
+        else if (levelIndex > 0) {  // Avoid playing on initial render
+          const sfxIndex = levelIndex % levelUpSfx.length;
+          await SoundManager.setVolume(`levelUp-${sfxIndex}`, 0.1);
+          await SoundManager.playSound(`levelUp-${sfxIndex}`);
+        }
+  
+        // Change ambient sound
+        await playAmbience(levelIndex);
+  
+        if (isGameActive) {
+          // Calculate and set new spawn interval
+          const newSpawnInterval = calculateSpawnInterval(levelIndex + 1);
+          setSpawnInterval(newSpawnInterval);
+        }
+      }
+    };
+  
+    handleLevelEffects();
+  }, [levelIndex]);
+
+  const handleLevelChange = (newLevel: number) => {
+    const newLevelIndex = Math.min(Math.max(newLevel - 1, 0), 8);
+    setLevelIndex(newLevelIndex);
+  };
+
+  //IMPORTANT FOR TESTING, use to determine how many hearts per level up
+  const calculateLevel = (count: number) => {
+    return Math.floor(count / 100) + 1;
+  };
+
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Object animation Section
+  ///////////////////////////////////////////////////////////////////////////
+
+
+  //function to add a falling heart when main heart is pressed
   const addFallingHeart = (color: boolean) => {
     const newHeart: ItemData = {
       id: getUniqueId(),
@@ -427,6 +517,7 @@ const Creme: React.FC = () => {
     }, 5000);
   };
 
+  //fucntion to add a falling kiss when main heart is pressed
   const addFallingKiss = () => {
     const newKiss: ItemData = {
       id: getUniqueId(),
@@ -440,11 +531,12 @@ const Creme: React.FC = () => {
     }, 5000);
   };
 
+  //function to add a falling picture of me and gf when main heart is pressed
   const addRandomMeAndCremeItem = () => {
     const randomIndex = Math.floor(Math.random() * 58) + 1;
     const randomSfxIndex = Math.floor(Math.random() * 15) + 1;
 
-    SoundManager.setVolume(`endorsement-${randomSfxIndex}`, 1)
+    SoundManager.setVolume(`endorsement-${randomSfxIndex}`, 0.5)
     SoundManager.playSound(`endorsement-${randomSfxIndex}`)
 
     const newItem: ItemData = {
@@ -459,6 +551,29 @@ const Creme: React.FC = () => {
     }, 5000);
   };
 
+  //function to animate main heartbeat
+  const animateHeart = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 1.2,
+        duration: 150,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 150,
+        easing: Easing.in(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Enemy Section
+  ///////////////////////////////////////////////////////////////////////////
+
+  //function to spawn an enemy
   const spawnEnemy = () => {
     console.log('spawning enemy')
     const side = Math.floor(Math.random() * 4);
@@ -496,11 +611,13 @@ const Creme: React.FC = () => {
     setEnemies(prevEnemies => [...prevEnemies, newEnemy]);
   };
 
+  //function to destroy enemy
   const destroyEnemy = (id: number) => {
     console.log('Destroying enemy:', id);
     setEnemies(prevEnemies => prevEnemies.filter(enemy => enemy.id !== id));
   };
 
+  //function when an enemy reaches the main heart
   const enemyReached = (id: number) => {
     console.log('enemy id: ' + id + ' reached the heart');
     setCount(prevCount => {
@@ -508,7 +625,7 @@ const Creme: React.FC = () => {
       const currentLevel = calculateLevel(prevCount);
       const newLevel = calculateLevel(newCount);
   
-      if (newLevel < currentLevel && currentLevel > 1) {
+      if (newLevel !== currentLevel) {
         handleLevelChange(newLevel);
       }
   
@@ -517,11 +634,14 @@ const Creme: React.FC = () => {
     destroyEnemy(id);
   };
 
+  //function to calculate enemy spawn interval
   const calculateSpawnInterval = (level: number) => {
     // Decrease spawn time by 5% for each level, with a minimum of 2 seconds
     return Math.max(2000, 10000 * Math.pow(0.95, level - 1));
   };
 
+
+  //useEffect to start game function when the game is active
   useEffect(() => {
     if (isGameActive) {
       const enemySpawnInterval = setInterval(spawnEnemy, spawnInterval);
@@ -529,77 +649,11 @@ const Creme: React.FC = () => {
     }
   }, [spawnInterval, isGameActive]);
 
+  ///////////////////////////////////////////////////////////////////////////
+  //Action Section
+  ///////////////////////////////////////////////////////////////////////////
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  const calculateLevel = (count: number) => {
-    return Math.floor(count / 10) + 1;
-  };
-
-  const handleLevelChange = (newLevel: number) => {
-    const newLevelIndex = Math.min(Math.max(newLevel - 1, 0), 8);
-    setLevelIndex(newLevelIndex);
-
-    if (newLevelIndex === FINAL_LEVEL) {
-
-      // Stop all sounds
-      console.log('final level, starting cutscene')
-      bgm.forEach((_, index) => SoundManager.stopSound(`bgm-${index}`));
-      levelUpSfx.forEach((_, index) => SoundManager.stopSound(`levelUp-${index}`));
-      levelAmbienceSfx.forEach((_, index) => SoundManager.stopSound(`ambience-${index}`));
-      
-      setIsGameActive(false);
-      setShowFirstCutscene(true);
-    }
-    else
-    {
-      // Stop the current ambient sound
-      SoundManager.stopSound(`ambience-${levelIndex}`);    
-
-      setLevelIndex(newLevelIndex);
-    
-      if(isGameActive)
-      {
-        // Calculate and set new spawn interval
-        const newSpawnInterval = calculateSpawnInterval(newLevel);
-        setSpawnInterval(newSpawnInterval);
-  
-        // Play level change sound
-        const sfxIndex = newLevelIndex % levelUpSfx.length;
-        if (newLevel > levelIndex + 1) {
-          // Level up sound
-          SoundManager.setVolume(`levelUp-${sfxIndex}`, 0.1);
-          SoundManager.playSound(`levelUp-${sfxIndex}`);
-        } else if (newLevel < levelIndex + 1) {
-          // Level down sound (you may want to add a specific sound for this)
-          SoundManager.setVolume(`levelUp-${sfxIndex}`, 0.1);
-          SoundManager.playSound(`levelUp-${sfxIndex}`);
-        }
-  
-        // Change ambient sound
-        const newAmbienceIndex = Math.min(newLevelIndex, levelAmbienceSfx.length - 1);
-        SoundManager.setVolume(`ambience-${newAmbienceIndex}`, 0.1);
-        SoundManager.playSound(`ambience-${newAmbienceIndex}`, true);
-      }
-    }
-  };
-
-  const animateHeart = () => {
-    Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 1.2,
-        duration: 150,
-        easing: Easing.out(Easing.ease),
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 150,
-        easing: Easing.in(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
+  //handlepress function the handle presses and activate functions
   const debouncedHandlePress = useRef(
     debounce(() => {
       setCount(prevCount => {
@@ -632,6 +686,11 @@ const Creme: React.FC = () => {
     debouncedHandlePress();
   };
 
+  ///////////////////////////////////////////////////////////////////////////
+  //Render Section
+  ///////////////////////////////////////////////////////////////////////////
+
+  //renders loading screen
   if (isLoading) {
     return (
       <ImageBackground
@@ -646,6 +705,7 @@ const Creme: React.FC = () => {
     );
   }
 
+  //renders cutscene if last level reached
   if (showFirstCutscene) {
     console.log('Rendering Cutscene');
     return (
@@ -659,11 +719,14 @@ const Creme: React.FC = () => {
     );
   }
   
+  //renders final phase after cutscene
   if (showFinalPhase) {
     console.log('Rendering CremeFinalPhase');
     return <CremeFinalPhase />;
   }
 
+
+  //renders main app
   return ( 
     <ImageBackground
       source={backgrounds[levelIndex]}

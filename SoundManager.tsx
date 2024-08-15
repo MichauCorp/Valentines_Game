@@ -91,7 +91,7 @@ class SoundManager {
   }
 
   async setVolume(key: string, volume: number) {
-    if (volume >= 0 && volume <= 1) {
+    if (volume >= 0 && volume <= 1 && this.sounds[key] != undefined) {
       await this.sounds[key].setVolumeAsync(volume);
     } else {
       console.log('invalid volume setting');
@@ -115,11 +115,15 @@ class SoundManager {
   }
 
   async checkTrackEnd(key: string): Promise<void> {
-    const status = await this.sounds[key].getStatusAsync() as PlaybackStatus;
-    if (status.isLoaded && status.positionMillis && status.durationMillis && 
+
+    if(this.sounds[key] != undefined)
+    {
+      const status = await this.sounds[key].getStatusAsync() as PlaybackStatus;
+      if (status.isLoaded && status.positionMillis && status.durationMillis && 
         status.positionMillis >= status.durationMillis) {
-      console.log(`Manual check: Track ended: ${key}`);
-      this.trackEndCallbacks.forEach(callback => callback());
+          console.log(`Manual check: Track ended: ${key}`);
+          this.trackEndCallbacks.forEach(callback => callback());
+        }
     }
   }
 }

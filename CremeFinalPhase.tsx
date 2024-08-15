@@ -32,6 +32,12 @@ const finalBoss = [
   require('@/assets/images/finalBoss/14.jpeg'),
   require('@/assets/images/finalBoss/15.jpeg'),
   require('@/assets/images/finalBoss/16.jpeg'),
+  require('@/assets/images/finalBoss/17.jpeg'),
+  require('@/assets/images/finalBoss/18.jpeg'),
+  require('@/assets/images/finalBoss/19.jpeg'),
+  require('@/assets/images/finalBoss/20.jpeg'),
+  require('@/assets/images/finalBoss/21.jpeg'),
+  require('@/assets/images/finalBoss/22.jpeg'),
 ];
 
 // Define a type for heart shots with id and position
@@ -53,7 +59,7 @@ const getRandomColor = () => {
 const CremeFinalPhase: React.FC = () => {
   const [shootingHeartPosition] = useState(new Animated.ValueXY({ x: 0, y: 0 }));
   const [heartScale] = useState(new Animated.Value(1));
-  const [isPressed, setIsPressed] = useState(false);
+  const [isShootingActive, setIsShootingActive] = useState(false);
   const [heartShots, setHeartShots] = useState<HeartShot[]>([]);
   const [shootingHeartScreenPosition, setShootingHeartScreenPosition] = useState({ x: 0, y: 0 });
 
@@ -142,7 +148,7 @@ const CremeFinalPhase: React.FC = () => {
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderGrant: () => {
-        setIsPressed(true);
+        setIsShootingActive(true);
         startHeartBeat();
       },
       onPanResponderMove: (event, gestureState) => {
@@ -151,73 +157,64 @@ const CremeFinalPhase: React.FC = () => {
           y: gestureState.moveY - 400,
         };
         shootingHeartPosition.setValue(newPosition);
-        setShootingHeartScreenPosition(newPosition); // Update state with new position
+        setShootingHeartScreenPosition(newPosition);
       },
       onPanResponderRelease: () => {
-        setIsPressed(false);
+        setIsShootingActive(false);
         stopHeartBeat();
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
-        }
       },
     })
   ).current;
-
+  
+  //useEffect for shooting hearts
   useEffect(() => {
-    console.log('CremeFinalPhase rendered');
-    finalBossMovement();
-  }, []);
-
-  useEffect(() => {
-    if (!isPressed && intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  }, [isPressed]);
-
-  useEffect(() => {
-    const shootHeartAtCurrentPosition = () => {
+    let shootingInterval: NodeJS.Timeout | null = null;
+  
+    const shootHeart = () => {
       const newHeartShotId = heartShotIdRef.current++;
       const newHeartShotPosition = new Animated.ValueXY({
         x: shootingHeartScreenPosition.x,
         y: shootingHeartScreenPosition.y,
       });
-
+  
       setHeartShots((prevHeartShots) => [
         ...prevHeartShots,
         { id: newHeartShotId, position: newHeartShotPosition },
       ]);
-
+  
       Animated.timing(newHeartShotPosition.y, {
         toValue: -height,
         duration: 2000,
         useNativeDriver: true,
         easing: Easing.linear,
       }).start(() => {
-
         setLoveBar(prev => prev + 0.4);
         setHeartShots((prevHeartShots) =>
           prevHeartShots.filter((heartShot) => heartShot.id !== newHeartShotId)
         );
       });
     };
-
-    if (isPressed) {
-      shootHeartAtCurrentPosition();
-      intervalRef.current = setInterval(shootHeartAtCurrentPosition, 300);
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+  
+    if (isShootingActive) {
+      shootHeart(); // Shoot immediately when activated
+      shootingInterval = setInterval(shootHeart, 300); // Then every 300ms
     }
-
+  
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      if (shootingInterval) {
+        clearInterval(shootingInterval);
       }
     };
-  }, [isPressed, shootingHeartScreenPosition]);
+  }, [isShootingActive, shootingHeartScreenPosition]);
 
+
+  //useEffect to start boss movement animation when component renders
+  useEffect(() => {
+    console.log('CremeFinalPhase rendered');
+    finalBossMovement();
+  }, []);
+
+  //heartbeat animation when shootingHeart is pressed
   const startHeartBeat = () => {
     Animated.loop(
       Animated.sequence([
@@ -242,12 +239,14 @@ const CremeFinalPhase: React.FC = () => {
     heartScale.setValue(1);
   };
 
+
+  
   const finalBossMovement = () => {
 
     const changeBossSprite = () => {
-      let num = Math.floor(Math.random() * 16);
+      let num = Math.floor(Math.random() * 22);
       while (num == bossSprite) {
-        num = Math.floor(Math.random() * 16)
+        num = Math.floor(Math.random() * 22)
       }
       setBossSprite(num);
     };
