@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Animated, Easing, Dimensions, ImageSourcePropType, ImageBackground } from 'react-native';
-import { debounce } from 'lodash';
+import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Animated, Easing, Dimensions, ImageSourcePropType, ImageBackground} from 'react-native';
+import { debounce, transform } from 'lodash';
 import SoundManager from '@/SoundManager';
+import CremeFinalPhase from '@/CremeFinalPhase';
+import CremeCutscene from '@/CremeCutscene';
 
 const { width, height } = Dimensions.get('window');
 const HEART_POSITION = { x: 0, y: -50 };
+const FINAL_LEVEL = 8;
 
 let uniqueId = 0;
 const getUniqueId = () => {
@@ -152,7 +155,7 @@ interface ItemData {
 }
 
 const meAndCremeImages = {
-  1: require('@/assets/images/me&creme/1.jpeg'),
+1: require('@/assets/images/me&creme/1.jpeg'),
 2: require('@/assets/images/me&creme/2.jpeg'),
 3: require('@/assets/images/me&creme/3.jpeg'),
 4: require('@/assets/images/me&creme/4.jpeg'),
@@ -232,7 +235,7 @@ const backgrounds = [
   require('@/assets/images/backgrounds/6.gif'),
   require('@/assets/images/backgrounds/7.gif'),
   require('@/assets/images/backgrounds/8.gif'),
-  require('@/assets/images/backgrounds/myself.png'),
+  //require('@/assets/images/backgrounds/myself.png'),
 ];
 
 const bgm = [
@@ -268,7 +271,21 @@ const levelAmbienceSfx = [
 ];
 
 const endorsementSfx = [
-  //require('@/assets/sound/sfx/endorsements/.mp3'),
+  require('@/assets/sound/sfx/endorsements/1.mp3'),
+  require('@/assets/sound/sfx/endorsements/2.mp3'),
+  require('@/assets/sound/sfx/endorsements/3.mp3'),
+  require('@/assets/sound/sfx/endorsements/4.mp3'),
+  require('@/assets/sound/sfx/endorsements/5.mp3'),
+  require('@/assets/sound/sfx/endorsements/6.mp3'),
+  require('@/assets/sound/sfx/endorsements/7.mp3'),
+  require('@/assets/sound/sfx/endorsements/8.mp3'),
+  require('@/assets/sound/sfx/endorsements/9.mp3'),
+  require('@/assets/sound/sfx/endorsements/10.mp3'),
+  require('@/assets/sound/sfx/endorsements/11.mp3'),
+  require('@/assets/sound/sfx/endorsements/12.mp3'),
+  require('@/assets/sound/sfx/endorsements/13.mp3'),
+  require('@/assets/sound/sfx/endorsements/14.mp3'),
+  require('@/assets/sound/sfx/endorsements/15.mp3'),
 ];
 
 const createRandomizedPlaylist = () => {
@@ -283,7 +300,7 @@ const createRandomizedPlaylist = () => {
 
 
 
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const Creme: React.FC = () => {
   // State declarations
   const [count, setCount] = useState<number>(0);
@@ -296,6 +313,10 @@ const Creme: React.FC = () => {
   const [playlist, setPlaylist] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [levelIndex, setLevelIndex] = useState(0);
+  const [showFirstCutscene, setShowFirstCutscene] = useState(false);
+  const [showFinalPhase, setShowFinalPhase] = useState(false);
+  const [isGameActive, setIsGameActive] = useState(false);
+
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -307,22 +328,28 @@ const Creme: React.FC = () => {
       
       for (let i = 0; i < bgm.length; i++) {
         await SoundManager.loadSound(`bgm-${i}`, bgm[i]);
-        if (i === bgm.length - 1) {
-          setIsLoading(false);
-        }
       }
       
-      await SoundManager.setVolume(`bgm-${newPlaylist[0]}`, 0.1);
-      await SoundManager.playSound(`bgm-${newPlaylist[0]}`, false);
       setCurrentTrackIndex(0);
 
       await loadLevelUpSfx();
       await loadAmbienceSounds();
-      
+      await SoundManager.loadSound('heartbeat', require('@/assets/sound/sfx/heartbeat.mp3'));
+      await SoundManager.setVolume('heartbeat', 1);
+      await SoundManager.loadSound('hopes&dreams', require('@/assets/sound/bgm/hopes&dreams.mp3'));
+      await SoundManager.setVolume('hopes&dreams', 0.75);
+      await SoundManager.loadSound('nadavdav', require('@/assets/sound/sfx/nadavdav.mp4'));
+      await SoundManager.setVolume('nadavdav', 1);
+
+      setIsGameActive(true);
+      setIsLoading(false);
+      await SoundManager.setVolume(`bgm-${newPlaylist[0]}`, 0.1);
+      await SoundManager.playSound(`bgm-${newPlaylist[0]}`, false);
       await SoundManager.setVolume(`ambience-0`, 0.1);
       await SoundManager.playSound(`ambience-0`, true);
     };
-    
+
+    loadEndorsementSounds();
     loadAndPlaySounds();
     toggleMute();
     
@@ -363,6 +390,12 @@ const Creme: React.FC = () => {
   const loadAmbienceSounds = async () => {
     for (let i = 0; i < levelAmbienceSfx.length; i++) {
       await SoundManager.loadSound(`ambience-${i}`, levelAmbienceSfx[i]);
+    }
+  };
+
+  const loadEndorsementSounds = async () => {
+    for (let i = 0; i < endorsementSfx.length; i++) {
+      await SoundManager.loadSound(`endorsement-${i}`, endorsementSfx[i]);
     }
   };
 
@@ -408,7 +441,12 @@ const Creme: React.FC = () => {
   };
 
   const addRandomMeAndCremeItem = () => {
-    const randomIndex = Math.floor(Math.random() * 44) + 1;
+    const randomIndex = Math.floor(Math.random() * 58) + 1;
+    const randomSfxIndex = Math.floor(Math.random() * 15) + 1;
+
+    SoundManager.setVolume(`endorsement-${randomSfxIndex}`, 1)
+    SoundManager.playSound(`endorsement-${randomSfxIndex}`)
+
     const newItem: ItemData = {
       id: getUniqueId(),
       startPosition: { x: (Math.random() * (width - 200)) * (Math.round(Math.random()) * 2 - 1), y: -200 },
@@ -485,46 +523,64 @@ const Creme: React.FC = () => {
   };
 
   useEffect(() => {
-    const enemySpawnInterval = setInterval(spawnEnemy, spawnInterval);
-    return () => clearInterval(enemySpawnInterval);
-  }, [spawnInterval]);
+    if (isGameActive) {
+      const enemySpawnInterval = setInterval(spawnEnemy, spawnInterval);
+      return () => clearInterval(enemySpawnInterval);
+    }
+  }, [spawnInterval, isGameActive]);
 
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const calculateLevel = (count: number) => {
-    return Math.floor(count / 100) + 1;
+    return Math.floor(count / 10) + 1;
   };
 
   const handleLevelChange = (newLevel: number) => {
     const newLevelIndex = Math.min(Math.max(newLevel - 1, 0), 8);
-    
-    // Stop the current ambient sound
-    SoundManager.stopSound(`ambience-${levelIndex}`);
-    if(newLevelIndex != 1)
-    {
-      SoundManager.stopSound('ambience-0'); //special case where ambience 1 didnt stop
-    }
-    
     setLevelIndex(newLevelIndex);
-    
-    // Calculate and set new spawn interval
-    const newSpawnInterval = calculateSpawnInterval(newLevel);
-    setSpawnInterval(newSpawnInterval);
-  
-    // Play level change sound
-    const sfxIndex = newLevelIndex % levelUpSfx.length;
-    if (newLevel > levelIndex + 1) {
-      // Level up sound
-      SoundManager.setVolume(`levelUp-${sfxIndex}`, 0.1);
-      SoundManager.playSound(`levelUp-${sfxIndex}`);
-    } else if (newLevel < levelIndex + 1) {
-      // Level down sound (you may want to add a specific sound for this)
-      SoundManager.setVolume(`levelUp-${sfxIndex}`, 0.1);
-      SoundManager.playSound(`levelUp-${sfxIndex}`);
+
+    if (newLevelIndex === FINAL_LEVEL) {
+
+      // Stop all sounds
+      console.log('final level, starting cutscene')
+      bgm.forEach((_, index) => SoundManager.stopSound(`bgm-${index}`));
+      levelUpSfx.forEach((_, index) => SoundManager.stopSound(`levelUp-${index}`));
+      levelAmbienceSfx.forEach((_, index) => SoundManager.stopSound(`ambience-${index}`));
+      
+      setIsGameActive(false);
+      setShowFirstCutscene(true);
     }
+    else
+    {
+      // Stop the current ambient sound
+      SoundManager.stopSound(`ambience-${levelIndex}`);    
+
+      setLevelIndex(newLevelIndex);
+    
+      if(isGameActive)
+      {
+        // Calculate and set new spawn interval
+        const newSpawnInterval = calculateSpawnInterval(newLevel);
+        setSpawnInterval(newSpawnInterval);
   
-    // Change ambient sound
-    const newAmbienceIndex = Math.min(newLevelIndex, levelAmbienceSfx.length - 1);
-    SoundManager.setVolume(`ambience-${newAmbienceIndex}`, 0.1);
-    SoundManager.playSound(`ambience-${newAmbienceIndex}`, true);
+        // Play level change sound
+        const sfxIndex = newLevelIndex % levelUpSfx.length;
+        if (newLevel > levelIndex + 1) {
+          // Level up sound
+          SoundManager.setVolume(`levelUp-${sfxIndex}`, 0.1);
+          SoundManager.playSound(`levelUp-${sfxIndex}`);
+        } else if (newLevel < levelIndex + 1) {
+          // Level down sound (you may want to add a specific sound for this)
+          SoundManager.setVolume(`levelUp-${sfxIndex}`, 0.1);
+          SoundManager.playSound(`levelUp-${sfxIndex}`);
+        }
+  
+        // Change ambient sound
+        const newAmbienceIndex = Math.min(newLevelIndex, levelAmbienceSfx.length - 1);
+        SoundManager.setVolume(`ambience-${newAmbienceIndex}`, 0.1);
+        SoundManager.playSound(`ambience-${newAmbienceIndex}`, true);
+      }
+    }
   };
 
   const animateHeart = () => {
@@ -590,6 +646,24 @@ const Creme: React.FC = () => {
     );
   }
 
+  if (showFirstCutscene) {
+    console.log('Rendering Cutscene');
+    return (
+      <CremeCutscene
+        onFinish={() => {
+          console.log('Cutscene onFinish callback called');
+          setShowFirstCutscene(false);
+          setShowFinalPhase(true);
+        }} 
+      />
+    );
+  }
+  
+  if (showFinalPhase) {
+    console.log('Rendering CremeFinalPhase');
+    return <CremeFinalPhase />;
+  }
+
   return ( 
     <ImageBackground
       source={backgrounds[levelIndex]}
@@ -632,6 +706,7 @@ const Creme: React.FC = () => {
     </ImageBackground>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -690,16 +765,66 @@ const styles = StyleSheet.create({
     backgroundColor: '#ddd',
     borderRadius: 5,
   },
-  backgroundImage: {
-    flex: 1,
-    width: width,
-    height: height,
-  },
   loadingImage: {
     width: width,
     height: height,
     color: 'white'
-  }
+  },
+  cutscene: {
+    flex: 1,
+    backgroundColor: 'black',
+  },
+  cutsceneHeart: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    width: 100,
+    height: 100,
+    marginLeft: -50,
+    marginTop: -50,
+  },
+  backgroundImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'white',
+  },
+  blackHole: {
+    position: 'absolute',
+    width: 100,
+    height: 100,
+    top: '50%',
+    left: '50%',
+    marginLeft: -50,
+    marginTop: -50,
+  },
+  shootingHeart: {
+    position: 'absolute',
+    width: 100,
+    height: 100,
+    top: '50%',
+    left: '50%',
+    marginLeft: -50,
+    marginTop: -50,
+  },
+  whiteOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'white',
+  },
+  finalPhase: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+  },
+  finalPhaseText: {
+    fontSize: 24,
+    color: 'black',
+  },
 });
 
 export default Creme;
