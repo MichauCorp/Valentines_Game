@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Animated, Easing, Dimensions, ImageSourcePropType, ImageBackground} from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, Animated, Easing, Dimensions, ImageSourcePropType, ImageBackground } from 'react-native';
 import { debounce, transform } from 'lodash';
 import SoundManager from '@/SoundManager';
 import CremeFinalPhase from '@/CremeFinalPhase';
 import CremeCutscene from '@/CremeCutscene';
-import { Sound } from 'expo-av/build/Audio';
 
 const { width, height } = Dimensions.get('window');
 const HEART_POSITION = { x: 0, y: -50 };
@@ -122,8 +121,8 @@ const Enemy: React.FC<EnemyProps> = ({ id, startPosition, source, onDestroy, onR
   };
 
   return (
-    <TouchableOpacity 
-      onPress={handlePress} 
+    <TouchableOpacity
+      onPress={handlePress}
       style={[styles.enemyTouchable, {
         transform: [
           { translateX: position.x },
@@ -159,64 +158,64 @@ interface ItemData {
 }
 //me and gf pictures
 const meAndCremeImages = {
-1: require('@/assets/images/me&creme/1.jpeg'),
-2: require('@/assets/images/me&creme/2.jpeg'),
-3: require('@/assets/images/me&creme/3.jpeg'),
-4: require('@/assets/images/me&creme/4.jpeg'),
-5: require('@/assets/images/me&creme/5.jpeg'),
-6: require('@/assets/images/me&creme/6.jpeg'),
-7: require('@/assets/images/me&creme/7.jpeg'),
-8: require('@/assets/images/me&creme/8.jpeg'),
-9: require('@/assets/images/me&creme/9.jpeg'),
-10: require('@/assets/images/me&creme/10.jpeg'),
-11: require('@/assets/images/me&creme/11.jpeg'),
-12: require('@/assets/images/me&creme/12.jpeg'),
-13: require('@/assets/images/me&creme/13.jpeg'),
-14: require('@/assets/images/me&creme/14.jpeg'),
-15: require('@/assets/images/me&creme/15.jpeg'),
-16: require('@/assets/images/me&creme/16.jpeg'),
-17: require('@/assets/images/me&creme/17.jpeg'),
-18: require('@/assets/images/me&creme/18.jpeg'),
-19: require('@/assets/images/me&creme/19.jpeg'),
-20: require('@/assets/images/me&creme/20.jpeg'),
-21: require('@/assets/images/me&creme/21.jpeg'),
-22: require('@/assets/images/me&creme/22.jpeg'),
-23: require('@/assets/images/me&creme/23.jpeg'),
-24: require('@/assets/images/me&creme/24.jpeg'),
-25: require('@/assets/images/me&creme/25.jpeg'),
-26: require('@/assets/images/me&creme/26.jpeg'),
-27: require('@/assets/images/me&creme/27.jpeg'),
-28: require('@/assets/images/me&creme/28.jpeg'),
-29: require('@/assets/images/me&creme/29.jpeg'),
-30: require('@/assets/images/me&creme/30.jpeg'),
-31: require('@/assets/images/me&creme/31.jpeg'),
-32: require('@/assets/images/me&creme/32.jpeg'),
-33: require('@/assets/images/me&creme/33.jpeg'),
-34: require('@/assets/images/me&creme/34.jpeg'),
-35: require('@/assets/images/me&creme/35.jpeg'),
-36: require('@/assets/images/me&creme/36.jpeg'),
-37: require('@/assets/images/me&creme/37.jpeg'),
-38: require('@/assets/images/me&creme/38.jpeg'),
-39: require('@/assets/images/me&creme/39.jpeg'),
-40: require('@/assets/images/me&creme/40.jpeg'),
-41: require('@/assets/images/me&creme/41.jpeg'),
-42: require('@/assets/images/me&creme/42.jpeg'),
-43: require('@/assets/images/me&creme/43.jpeg'),
-44: require('@/assets/images/me&creme/44.jpeg'),
-45: require('@/assets/images/me&creme/45.jpeg'),
-46: require('@/assets/images/me&creme/46.jpeg'),
-47: require('@/assets/images/me&creme/47.jpeg'),
-48: require('@/assets/images/me&creme/48.jpeg'),
-49: require('@/assets/images/me&creme/49.jpeg'),
-50: require('@/assets/images/me&creme/50.jpeg'),
-51: require('@/assets/images/me&creme/51.jpeg'),
-52: require('@/assets/images/me&creme/52.jpeg'),
-53: require('@/assets/images/me&creme/53.jpeg'),
-54: require('@/assets/images/me&creme/54.jpeg'),
-55: require('@/assets/images/me&creme/55.jpeg'),
-56: require('@/assets/images/me&creme/56.jpeg'),
-57: require('@/assets/images/me&creme/57.jpeg'),
-58: require('@/assets/images/me&creme/58.jpeg'),
+  1: require('@/assets/images/me&creme/1.jpeg'),
+  2: require('@/assets/images/me&creme/2.jpeg'),
+  3: require('@/assets/images/me&creme/3.jpeg'),
+  4: require('@/assets/images/me&creme/4.jpeg'),
+  5: require('@/assets/images/me&creme/5.jpeg'),
+  6: require('@/assets/images/me&creme/6.jpeg'),
+  7: require('@/assets/images/me&creme/7.jpeg'),
+  8: require('@/assets/images/me&creme/8.jpeg'),
+  9: require('@/assets/images/me&creme/9.jpeg'),
+  10: require('@/assets/images/me&creme/10.jpeg'),
+  11: require('@/assets/images/me&creme/11.jpeg'),
+  12: require('@/assets/images/me&creme/12.jpeg'),
+  13: require('@/assets/images/me&creme/13.jpeg'),
+  14: require('@/assets/images/me&creme/14.jpeg'),
+  15: require('@/assets/images/me&creme/15.jpeg'),
+  16: require('@/assets/images/me&creme/16.jpeg'),
+  17: require('@/assets/images/me&creme/17.jpeg'),
+  18: require('@/assets/images/me&creme/18.jpeg'),
+  19: require('@/assets/images/me&creme/19.jpeg'),
+  20: require('@/assets/images/me&creme/20.jpeg'),
+  21: require('@/assets/images/me&creme/21.jpeg'),
+  22: require('@/assets/images/me&creme/22.jpeg'),
+  23: require('@/assets/images/me&creme/23.jpeg'),
+  24: require('@/assets/images/me&creme/24.jpeg'),
+  25: require('@/assets/images/me&creme/25.jpeg'),
+  26: require('@/assets/images/me&creme/26.jpeg'),
+  27: require('@/assets/images/me&creme/27.jpeg'),
+  28: require('@/assets/images/me&creme/28.jpeg'),
+  29: require('@/assets/images/me&creme/29.jpeg'),
+  30: require('@/assets/images/me&creme/30.jpeg'),
+  31: require('@/assets/images/me&creme/31.jpeg'),
+  32: require('@/assets/images/me&creme/32.jpeg'),
+  33: require('@/assets/images/me&creme/33.jpeg'),
+  34: require('@/assets/images/me&creme/34.jpeg'),
+  35: require('@/assets/images/me&creme/35.jpeg'),
+  36: require('@/assets/images/me&creme/36.jpeg'),
+  37: require('@/assets/images/me&creme/37.jpeg'),
+  38: require('@/assets/images/me&creme/38.jpeg'),
+  39: require('@/assets/images/me&creme/39.jpeg'),
+  40: require('@/assets/images/me&creme/40.jpeg'),
+  41: require('@/assets/images/me&creme/41.jpeg'),
+  42: require('@/assets/images/me&creme/42.jpeg'),
+  43: require('@/assets/images/me&creme/43.jpeg'),
+  44: require('@/assets/images/me&creme/44.jpeg'),
+  45: require('@/assets/images/me&creme/45.jpeg'),
+  46: require('@/assets/images/me&creme/46.jpeg'),
+  47: require('@/assets/images/me&creme/47.jpeg'),
+  48: require('@/assets/images/me&creme/48.jpeg'),
+  49: require('@/assets/images/me&creme/49.jpeg'),
+  50: require('@/assets/images/me&creme/50.jpeg'),
+  51: require('@/assets/images/me&creme/51.jpeg'),
+  52: require('@/assets/images/me&creme/52.jpeg'),
+  53: require('@/assets/images/me&creme/53.jpeg'),
+  54: require('@/assets/images/me&creme/54.jpeg'),
+  55: require('@/assets/images/me&creme/55.jpeg'),
+  56: require('@/assets/images/me&creme/56.jpeg'),
+  57: require('@/assets/images/me&creme/57.jpeg'),
+  58: require('@/assets/images/me&creme/58.jpeg'),
 };
 
 //enemy sprites, change per level
@@ -315,20 +314,25 @@ const createRandomizedPlaylist = () => {
 const Creme: React.FC = () => {
   // State declarations
   const [count, setCount] = useState<number>(0);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
   const [fallingItems, setFallingItems] = useState<ItemData[]>([]);
+  const [redOrPink, setRedOrPink] = useState(true);
+
   const [enemies, setEnemies] = useState<EnemyProps[]>([]);
   const [spawnInterval, setSpawnInterval] = useState<number>(10000); // 10 seconds initial spawn time
+
   const [isMuted, setIsMuted] = useState(true);
-  const [redOrPink, setRedOrPink] = useState(true);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [playlist, setPlaylist] = useState<number[]>([]);
+  const [currentAmbienceIndex, setCurrentAmbienceIndex] = useState(0);
+
   const [isLoading, setIsLoading] = useState(true);
   const [levelIndex, setLevelIndex] = useState(0);
   const [showFirstCutscene, setShowFirstCutscene] = useState(false);
   const [showFinalPhase, setShowFinalPhase] = useState(false);
   const [isGameActive, setIsGameActive] = useState(false);
-  const [currentAmbienceIndex, setCurrentAmbienceIndex] = useState(0);
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+
 
   ///////////////////////////////////////////////////////////////////////////
   //Sound Section
@@ -360,14 +364,14 @@ const Creme: React.FC = () => {
 
   //load sounds for other components
   const loadNextComponentsSounds = async () => {
-      await SoundManager.loadSound('heartbeat', require('@/assets/sound/sfx/heartbeat.mp3'));
-      await SoundManager.setVolume('heartbeat', 1);
+    await SoundManager.loadSound('heartbeat', require('@/assets/sound/sfx/heartbeat.mp3'));
+    await SoundManager.setVolume('heartbeat', 1);
 
-      await SoundManager.loadSound('hopes&dreams', require('@/assets/sound/bgm/hopes&dreams.mp3'));
-      await SoundManager.setVolume('hopes&dreams', 0.75);
+    await SoundManager.loadSound('hopes&dreams', require('@/assets/sound/bgm/hopesdreams.mp3'));
+    await SoundManager.setVolume('hopes&dreams', 0.75);
 
-      await SoundManager.loadSound('nadavdav', require('@/assets/sound/sfx/nadavdav.mp4'));
-      await SoundManager.setVolume('nadavdav', 1);
+    await SoundManager.loadSound('nadavdav', require('@/assets/sound/sfx/nadavdav.mp4'));
+    await SoundManager.setVolume('nadavdav', 1);
   }
 
   //function to change ambience played per level
@@ -376,7 +380,7 @@ const Creme: React.FC = () => {
     if (currentAmbienceIndex !== index) {
       await SoundManager.stopSound(`ambience-${currentAmbienceIndex}`);
     }
-    
+
     setCurrentAmbienceIndex(index);
     await SoundManager.setVolume(`ambience-${index}`, 0.1);
     await SoundManager.playSound(`ambience-${index}`, true);
@@ -387,7 +391,7 @@ const Creme: React.FC = () => {
     const initializeGame = async () => {
       const newPlaylist = createRandomizedPlaylist();
       setPlaylist(newPlaylist);
-      
+
       await loadLevelSounds();
       await loadBgmSounds();
       await loadEndorsementSounds();
@@ -395,22 +399,22 @@ const Creme: React.FC = () => {
 
       setIsGameActive(true);
       setIsLoading(false);
-      
+
       await SoundManager.setVolume(`bgm-${newPlaylist[0]}`, 0.1);
       await SoundManager.playSound(`bgm-${newPlaylist[0]}`, false);
-      
+
       await playAmbience(0);
     };
-  
+
     initializeGame();
     toggleMute();
-    
+
     return () => {
       SoundManager.unloadAllSounds();
     };
   }, []);
 
-  // useEffect for track changes
+  // useEffect for bgm track changes
   useEffect(() => {
     const handleTrackEnd = async () => {
       const nextIndex = (currentTrackIndex + 1) % playlist.length;
@@ -420,15 +424,20 @@ const Creme: React.FC = () => {
       await SoundManager.playSound(`bgm-${playlist[nextIndex]}`, false);
     };
 
-    SoundManager.onTrackEnd(handleTrackEnd);
+    playlist.forEach((trackIndex) => {
+      SoundManager.onTrackEnd(`bgm-${trackIndex}`, handleTrackEnd);
+    });
 
-    const interval = setInterval(() => {
-      SoundManager.checkTrackEnd(`bgm-${playlist[currentTrackIndex]}`);
-    }, 1000);
+    if (!isPlaying) {
+      SoundManager.setVolume(`bgm-${playlist[currentTrackIndex]}`, 0.3);
+      SoundManager.playSound(`bgm-${playlist[currentTrackIndex]}`, false);
+      setIsPlaying(true);
+    }
 
     return () => {
-      SoundManager.offTrackEnd(handleTrackEnd);
-      clearInterval(interval);
+      playlist.forEach((trackIndex) => {
+        SoundManager.offTrackEnd(`bgm-${trackIndex}`, handleTrackEnd);
+      });
     };
   }, [currentTrackIndex, playlist]);
 
@@ -438,7 +447,7 @@ const Creme: React.FC = () => {
       ...levelUpSfx.map((_, index) => `levelUp-${index}`),
       ...levelAmbienceSfx.map((_, index) => `ambience-${index}`),
     ];
-  
+
     sounds.forEach(sound => {
       if (isMuted) {
         SoundManager.unmuteSound(sound);
@@ -446,7 +455,7 @@ const Creme: React.FC = () => {
         SoundManager.muteSound(sound);
       }
     });
-  
+
     setIsMuted(!isMuted);
   };
 
@@ -461,8 +470,7 @@ const Creme: React.FC = () => {
         setShowFirstCutscene(true);
       } else {
         // Level up sound
-        if (levelIndex == 1)
-        {
+        if (levelIndex == 1) {
           await SoundManager.setVolume(`levelUp-0`, 0.1);
           await SoundManager.playSound(`levelUp-0`);
         }
@@ -471,10 +479,10 @@ const Creme: React.FC = () => {
           await SoundManager.setVolume(`levelUp-${sfxIndex}`, 0.1);
           await SoundManager.playSound(`levelUp-${sfxIndex}`);
         }
-  
+
         // Change ambient sound
         await playAmbience(levelIndex);
-  
+
         if (isGameActive) {
           // Calculate and set new spawn interval
           const newSpawnInterval = calculateSpawnInterval(levelIndex + 1);
@@ -482,7 +490,7 @@ const Creme: React.FC = () => {
         }
       }
     };
-  
+
     handleLevelEffects();
   }, [levelIndex]);
 
@@ -507,7 +515,7 @@ const Creme: React.FC = () => {
     const newHeart: ItemData = {
       id: getUniqueId(),
       startPosition: { x: (Math.random() * (width - 200)) * (Math.round(Math.random()) * 2 - 1), y: -300 },
-      imageSource: color 
+      imageSource: color
         ? require('@/assets/images/objects/fallingHeartRed.png')
         : require('@/assets/images/objects/fallingHeartPink.png'),
       type: 'heart',
@@ -535,12 +543,6 @@ const Creme: React.FC = () => {
   //function to add a falling picture of me and gf when main heart is pressed
   const addRandomMeAndCremeItem = () => {
     const randomIndex = Math.floor(Math.random() * 58) + 1;
-    const randomSfxIndex = Math.floor(Math.random() * 15) + 1;
-
-    SoundManager.setVolume(`endorsement-${randomSfxIndex}`, 0.5);
-    SoundManager.playSound(`endorsement-${randomSfxIndex}`, false);
-
-
 
     const newItem: ItemData = {
       id: getUniqueId(),
@@ -610,7 +612,7 @@ const Creme: React.FC = () => {
       onDestroy: () => destroyEnemy(id),
       onReach: () => enemyReached(id)
     };
-  
+
     setEnemies(prevEnemies => [...prevEnemies, newEnemy]);
   };
 
@@ -627,11 +629,11 @@ const Creme: React.FC = () => {
       const newCount = Math.max(0, prevCount - 5); // Ensure count doesn't go below 0
       const currentLevel = calculateLevel(prevCount);
       const newLevel = calculateLevel(newCount);
-  
+
       if (newLevel !== currentLevel) {
         handleLevelChange(newLevel);
       }
-  
+
       return newCount;
     });
     destroyEnemy(id);
@@ -663,16 +665,22 @@ const Creme: React.FC = () => {
         const newCount = prevCount + 1;
         const currentLevel = calculateLevel(prevCount);
         const newLevel = calculateLevel(newCount);
-  
+
         if (newLevel > currentLevel) {
           handleLevelChange(newLevel);
         }
-  
+
         if (newCount % 10 === 0) {
           addRandomMeAndCremeItem();
         }
         if (newCount % 3 === 0) {
           addFallingKiss();
+        }
+        if (newCount % 20 == 0) {
+          const randomSfxIndex = Math.floor(Math.random() * 15) + 1;
+
+          SoundManager.setVolume(`endorsement-${randomSfxIndex}`, 0.5);
+          SoundManager.playSound(`endorsement-${randomSfxIndex}`, false);
         }
         return newCount;
       });
@@ -696,15 +704,17 @@ const Creme: React.FC = () => {
   //renders loading screen
   if (isLoading) {
     return (
-      <ImageBackground
-        source={require('@/assets/images/misc/loading.gif')}
-        style={styles.loadingImage}
-        resizeMode='contain'
-      >
-        <SafeAreaView style = {styles.container}>
+      <View style={styles.outerContainer}>
+        <ImageBackground
+          source={require('@/assets/images/misc/loading.gif')}
+          style={styles.loadingImage}
+          resizeMode='contain'
+        >
+          <SafeAreaView style={styles.container}>
 
-        </SafeAreaView>
-      </ImageBackground>
+          </SafeAreaView>
+        </ImageBackground>
+      </View>
     );
   }
 
@@ -717,11 +727,11 @@ const Creme: React.FC = () => {
           console.log('Cutscene onFinish callback called');
           setShowFirstCutscene(false);
           setShowFinalPhase(true);
-        }} 
+        }}
       />
     );
   }
-  
+
   //renders final phase after cutscene
   if (showFinalPhase) {
     console.log('Rendering CremeFinalPhase');
@@ -730,7 +740,7 @@ const Creme: React.FC = () => {
 
 
   //renders main app
-  return ( 
+  return (
     <ImageBackground
       source={backgrounds[levelIndex]}
       style={styles.backgroundImage}
@@ -758,14 +768,14 @@ const Creme: React.FC = () => {
         ))}
         {enemies.map(enemy => {
           return (
-          <Enemy
-            key={enemy.id}
-            id={enemy.id}
-            source={enemySprites[levelIndex]}
-            startPosition={enemy.startPosition}
-            onDestroy={() => destroyEnemy(enemy.id)}
-            onReach={() => enemyReached(enemy.id)}
-          />
+            <Enemy
+              key={enemy.id}
+              id={enemy.id}
+              source={enemySprites[levelIndex]}
+              startPosition={enemy.startPosition}
+              onDestroy={() => destroyEnemy(enemy.id)}
+              onReach={() => enemyReached(enemy.id)}
+            />
           );
         })}
       </SafeAreaView>
@@ -775,6 +785,10 @@ const Creme: React.FC = () => {
 
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    backgroundColor: 'black'
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -793,7 +807,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: 'white',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: {width: -1, height: 1},
+    textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
   levelText: {
@@ -801,7 +815,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: 'white',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: {width: -1, height: 1},
+    textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
   },
   fallingItem: {

@@ -188,7 +188,7 @@ const CremeFinalPhase: React.FC = () => {
         useNativeDriver: true,
         easing: Easing.linear,
       }).start(() => {
-        setLoveBar(prev => prev + 0.4);
+        setLoveBar(prev => prev + 0.15);
         setHeartShots((prevHeartShots) =>
           prevHeartShots.filter((heartShot) => heartShot.id !== newHeartShotId)
         );
@@ -455,6 +455,7 @@ const CremeFinalPhase: React.FC = () => {
   }
 
   return (
+    <View style={styles.outerContainer}>
     <ImageBackground
       source={backgroundImage}
       resizeMode='contain'
@@ -646,10 +647,15 @@ const CremeFinalPhase: React.FC = () => {
         </>
       )}
     </ImageBackground>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    backgroundColor: 'black'
+  },
   container: {
     flex: 1,
     justifyContent: 'center',

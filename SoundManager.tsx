@@ -13,7 +13,7 @@ interface PlaybackStatus {
 class SoundManager {
   private sounds: { [key: string]: Audio.Sound } = {};
   public isMuted: boolean = false;
-  private trackEndCallbacks: TrackEndCallback[] = [];
+  private trackEndCallbacks: { [key: string]: TrackEndCallback[] } = {};
 
   async loadSound(key: string, soundFile: any): Promise<void> {
     if (this.sounds[key]) {
@@ -32,12 +32,12 @@ class SoundManager {
       return;
     }
     console.log(`Playing Sound: ${key}`);
-    
+
     // Reset the sound before playing
     await this.resetSound(key);
-    
+
     await this.sounds[key].setIsLoopingAsync(loop);
-    
+
     const combinedCallback = (status: PlaybackStatus) => {
       this.handlePlaybackStatusUpdate(status, key);
       if (onPlaybackStatusUpdate) {
@@ -47,9 +47,9 @@ class SoundManager {
         this.resetSound(key);
       }
     };
-    
+
     this.sounds[key].setOnPlaybackStatusUpdate(combinedCallback);
-    
+
     await this.sounds[key].playAsync();
   }
 
@@ -121,32 +121,25 @@ class SoundManager {
     }
   }
 
-  onTrackEnd(callback: TrackEndCallback): void {
-    this.trackEndCallbacks.push(callback);
+  onTrackEnd(key: string, callback: TrackEndCallback): void {
+    if (!this.trackEndCallbacks[key]) {
+      this.trackEndCallbacks[key] = [];
+    }
+    this.trackEndCallbacks[key].push(callback);
   }
 
-  offTrackEnd(callback: TrackEndCallback): void {
-    this.trackEndCallbacks = this.trackEndCallbacks.filter(cb => cb !== callback);
-  }
-
-  private handlePlaybackStatusUpdate(status: PlaybackStatus, key: string): void {
-    //console.log(`Playback status update for ${key}:`, status);
-    if (status.isLoaded && status.didJustFinish) {
-      console.log(`Track ended: ${key}`);
-      this.trackEndCallbacks.forEach(callback => callback());
+  offTrackEnd(key: string, callback: TrackEndCallback): void {
+    if (this.trackEndCallbacks[key]) {
+      this.trackEndCallbacks[key] = this.trackEndCallbacks[key].filter(cb => cb !== callback);
     }
   }
 
-  async checkTrackEnd(key: string): Promise<void> {
-
-    if(this.sounds[key] != undefined)
-    {
-      const status = await this.sounds[key].getStatusAsync() as PlaybackStatus;
-      if (status.isLoaded && status.positionMillis && status.durationMillis && 
-        status.positionMillis >= status.durationMillis) {
-          console.log(`Manual check: Track ended: ${key}`);
-          this.trackEndCallbacks.forEach(callback => callback());
-        }
+  private handlePlaybackStatusUpdate(status: PlaybackStatus, key: string): void {
+    if (status.isLoaded && status.didJustFinish) {
+      console.log(`Track ended: ${key}`);
+      if (this.trackEndCallbacks[key]) {
+        this.trackEndCallbacks[key].forEach(callback => callback());
+      }
     }
   }
 }
